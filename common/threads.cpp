@@ -512,11 +512,85 @@ void            ThreadSetPriority(q_threadpriority type)
     setpriority(PRIO_PROCESS, 0, val);
 }
 
+#include <stddef.h>
+
+#ifdef __unix__
+#include <unistd.h>
+static int UnixThreadDefault()
+{
+    long sysconfResult = sysconf(_SC_NPROCESSORS_ONLN);
+    if (sysconfResult) {
+        return (int)sysconfResult;
+    }
+    return -1;
+}
+
+#endif
+
+#ifdef __linux__
+#include <sched.h>
+static int PlatformThreadDefault()
+{
+#ifdef _GNU_SOURCE
+    cpu_set_t cs;
+    CPU_ZERO(&cs);
+    if (sched_getaffinity(0, sizeof(cs), &cs) != 0) {
+        return UnixThreadDefault();
+    } else {
+        int i;
+        int count = 0;
+        for (i = 0; i < CPU_COUNT(&cs); i++)
+        {
+            if (CPU_ISSET(i, &cs))
+                count++;
+        }
+        return count;
+    }
+#else
+    return UnixThreadDefault();
+#endif
+}
+
+#elif defined(__FreeBSD__) || defined(__NetBSD__) || defined(__APPLE__)
+#include <sys/types.h>
+#include <sys/sysctl.h>
+static int PlatformThreadDefault()
+{
+#ifdef __APPLE__
+    const char* name = "machdep.cpu.core_count";
+#else
+    const char* name = "hw.ncpu";
+#endif
+    unsigned int number;
+    size_t len = sizeof(unsigned int);
+    sysctlbyname(name, &number, &len, NULL, 0);
+    
+    if (number < 1) {
+        return UnixThreadDefault();
+    } else {
+        return (int)number;
+    }
+}
+#elif defined(__unix__)
+static int PlatformThreadDefault()
+{
+    return UnixThreadDefault();
+}
+#else
+static int PlatformThreadDefault()
+{
+    return -1;
+}
+#endif
+
 void            ThreadSetDefault()
 {
     if (g_numthreads == -1)
     {
-        g_numthreads = 1;
+        g_numthreads = PlatformThreadDefault();
+        if (g_numthreads == -1) {
+            g_numthreads = 1;
+        }
     }
 }
 
