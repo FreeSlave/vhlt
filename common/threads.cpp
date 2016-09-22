@@ -514,7 +514,7 @@ void            ThreadSetPriority(q_threadpriority type)
 
 #include <stddef.h>
 
-#ifdef __unix__
+#if defined(__unix__) || defined(__APPLE__)
 #include <unistd.h>
 static int UnixThreadDefault()
 {
