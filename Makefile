@@ -87,7 +87,7 @@ COMMON_DEFINITIONS = \
 			HAVE_SYS_TIME_H \
 			HAVE_UNISTD_H \
 
-COMMON_FLAGS = -Wall -O2 -fno-strict-aliasing -pthread -pipe $(USER_FLAGS)
+COMMON_FLAGS = -Wall -Wno-deprecated-declarations -O2 -fno-strict-aliasing -pthread -pipe $(USER_FLAGS)
 
 #
 # Specific .cpp and .h files for hlcsg, hlbsp, hlvis, hlrad and ripent

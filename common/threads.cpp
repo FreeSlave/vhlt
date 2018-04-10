@@ -656,7 +656,7 @@ void            threads_UninitCrit()
  */
 void            RunThreadsOn(int workcnt, bool showpacifier, q_threadfunction func)
 {
-    int             i;
+    intptr_t        i;
     pthread_t       work_threads[MAX_THREADS];
     pthread_addr_t  status;
     pthread_attr_t  attrib;
