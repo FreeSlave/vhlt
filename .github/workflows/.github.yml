@@ -8,14 +8,8 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest]
-        compiler: [gcc, clang]
-        include:
-          - cc: gcc
-            cxx: g++
-          - cc: clang
-            cxx: clang++
+        cxx: [g++, clang++]
     env:
-      CC: ${{ matrix.cc }}
       CXX: ${{ matrix.cxx }}
     steps:
     - name: Checkout
